@@ -1,0 +1,336 @@
+---
+layout: post
+title:  "8种编程语言"
+date:   2018-12-04 12:37:24 +0800
+categories: programming
+---
+
+用8种不同的语言，调用了一个外部的https接口。
+
+{:toc}
+| 语言 | 代码行数 | 包管理工具 | 引入外部包	| 是否支持图形化 | 是否支持web服务端 | 创立年份 |
+| - | - | - | - | - | - | - | - |
+| ruby | 15 | gem | 无	| wxRuby | 是 | 1993 |
+| shell | 16 | yum | jq | 否 | 否 | 1970 |
+| python | 19 | pip | 无 | wxpython | 是 | 1991 |
+| node | 23 | npm | request | Electron | 是 | 2009 |
+| perl | 25 | cpan | LWP，JSON | TK | 是 | 1987 |
+| php | 27 | composer | curl | PHP-UI（PHP7） | 是 | 1995
+| go | 34 | github | 无 | 第三方 | 是 | 2009 |
+| java | 48 | maven | httpclient，fastjson | SWT，Swing | 是 | 1995 |
+
+1.个人偏好排序：java > python > node > shell > go > ruby > php > perl
+
+2.shell属于胶水语言，没办法支持中大型项目
+
+3.perl的语法非常奇异，建议能不用就不用
+
+**ruby**
+
+{% highlight ruby %}
+require 'net/http'
+require 'json'
+def isValidUser(userName, password) 
+ uri = URI('https://github.com/pm/login.shtml')
+ params = {userName:userName, password:password}
+ res = Net::HTTP.post_form(uri, params)
+ puts res.body
+ result = JSON.parse(res.body)
+ if result["code"] == "e1000"
+  return true
+ end
+ return false
+end
+puts "auth result : " + String(isValidUser("it", "efun11"))
+puts "auth result : " + String(isValidUser("it", "efun"))
+{% endhighlight %}
+
+1.条件表达式if end
+
+2.puts和print不一样，可以自动换行
+
+
+**shell**
+
+{% highlight shell %}
+#!/bin/bash
+result="false"
+function is_valid_user () {
+ message=`curl -s --request POST --url https://github.com/pm/login.shtml --data "userName=$1&password=$2"`
+ echo "$message"
+ code=`echo $message | jq -r '.code'`
+ if [ "$code" == "e1000" ]; then
+  result="true"
+ else
+  result="false"
+ fi
+}
+is_valid_user "it" "efun11"
+echo "auth result : $result" 
+is_valid_user "it" "efun"
+echo "auth result : $result" 
+{% endhighlight %}
+
+1.shell有几种类型，目前默认是bash，早期是sh，有贴近于c语言的csh
+
+2.函数返回值只能是整数，范围是0-255
+
+3.赋值表达式不能有空格，如code = "1"会提示语法错误
+
+4.``标识执行里面的命令，如果前面有表达式赋值，将结果传出来给变量
+
+**python**
+
+{% highlight python %}
+import urllib
+import urllib2
+import json
+def isValidUser(userName, password):
+    url = "https://github.com/pm/login.shtml"
+    data = {"userName": userName, "password": password}
+    req = urllib2.Request(url=url, data=urllib.urlencode(data))
+    res_data = urllib2.urlopen(req)
+    res = res_data.read()
+    print res
+    if res is not None:
+        if json.loads(res)['code'] == "e1000":
+         return True 
+ return False
+if __name__ == '__main__':
+    result = isValidUser("it", "efun11")
+    print "auth result :", result
+    result = isValidUser("it", "efun")
+    print "auth result :", result
+{% endhighlight %}
+
+1.python2和python3语法差异巨大
+
+2.linux目前附带python版本为python2
+
+3.python2的用户占六成多，但逐步在递减
+
+4.布尔值True和Fasle首字母是大写的
+
+5.代码要求严格的缩进
+
+**nodejs**
+
+{% highlight nodejs %}
+import urllib
+import urllib2
+import json
+def isValidUser(userName, password):
+    url = "https://github.com/pm/login.shtml"
+    data = {"userName": userName, "password": password}
+    req = urllib2.Request(url=url, data=urllib.urlencode(data))
+    res_data = urllib2.urlopen(req)
+    res = res_data.read()
+    print res
+    if res is not None:
+        if json.loads(res)['code'] == "e1000":
+         return True 
+ return False
+if __name__ == '__main__':
+    result = isValidUser("it", "efun11")
+    print "auth result :", result
+    result = isValidUser("it", "efun")
+    print "auth result :", result
+{% endhighlight %}
+
+1.node是天生异步处理的，编程时要适应这种机制，可以利用es7的async/awit特性来做同步处理。
+
+
+**perl**
+
+{% highlight perl %}
+use LWP::UserAgent;
+use JSON;
+use Data::Dumper;
+sub IsValidUser {
+ my $ua = LWP::UserAgent->new;
+ my $server_endpoint = "https://github.com/pm/login.shtml";
+ my $req = HTTP::Request->new(POST => $server_endpoint);
+ $req->header('content-type' => 'application/x-www-form-urlencoded');
+ my($userName, $password) = @_;
+ my $content = "userName=$userName&password=$password";
+ $req->content($content);
+ my $resp = $ua->request($req);
+ if ($resp->is_success) {
+  my $message = $resp->decoded_content;
+  print "$message\n";
+  my $json = decode_json($message);
+  if ($json->{"code"} eq "e1000") {
+   return "true";
+  } else {
+   return "false";
+  }
+ }
+}
+print "auth result : ",IsValidUser("it", "efun11"),"\n";
+print "auth result : ",IsValidUser("it", "efun"),"\n";
+{% endhighlight %}
+
+1.方法接受参数，my($userName, $password) = @_
+
+2.方法调用，->
+
+3.模块引用，::，如LWP::UserAgent
+
+
+**php**
+
+{% highlight php %}
+<?php 
+ function is_valid_user($userName, $password)
+ {
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, "https://github.com/pm/login.shtml");
+  curl_setopt($curl, CURLOPT_HEADER, 0);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+  curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+  curl_setopt($curl, CURLOPT_POST, true);
+  $data = array("userName"=>$userName,"password"=>$password);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+  $tmpInfo = curl_exec($curl);
+  curl_close($curl);
+  print_r("$tmpInfo<br>");
+  $reslut = json_decode($tmpInfo);
+  if ($reslut->{"code"} == "e1000") {
+   return "true";
+  }
+  return "false";
+ }
+ $result = is_valid_user("it", "efun11");
+    print_r("auth result : $result<br>");
+ $result = is_valid_user("it", "efun");
+    print_r("auth result : $result<br>");
+?>
+{% endhighlight %}
+
+1.本地跑php，php -S localhost:8000 -c php.ini
+
+2.浏览器输入http://localhost:8000/Auth.php
+
+3.php.ini
+extension_dir = "D:\Program Files\php-7.2.12-nts-Win32-VC15-x64\ext"
+extension=curl
+
+4.完全基于web，换行用<br>
+
+5.语法和perl有点像
+
+
+**go**
+
+{% highlight go %}
+package main
+import (
+ "encoding/json"
+ "io/ioutil"
+ "net/http"
+ "net/url"
+ "fmt"
+)
+func isValidUser(username, password string) bool {
+ resp, err := http.PostForm("https://github.com/pm/login.shtml",
+  url.Values{"userName": {username}, "password": {password}})
+ if err != nil {
+  return false
+ }
+ defer resp.Body.Close()
+ body, err := ioutil.ReadAll(resp.Body)
+ if err != nil {
+  return false
+ }
+ fmt.Println(string(body))
+ m := make(map[string]interface{})
+ err = json.Unmarshal([]byte(string(body)), &m)
+ if err != nil {
+  return false
+ }
+ if (m["code"] == "e1000") {
+  return true
+ }
+ return false
+}
+func main() {
+ fmt.Println("auth result :", isValidUser("it","efun11"))
+ fmt.Println("auth result :", isValidUser("it","efun"))
+}
+{% endhighlight %}
+
+1.包管理无法处理组件的多版本
+
+2.包管理的源头在github，有时候会出现源头消失的情况
+
+3.错误处理比较奇怪，如err != nil
+
+4.map的初始化很特殊，make(map[string]interface{})，如果不加make，不会初始化map对象
+
+5.和java一样也有GC回收内存
+
+6.对并发的支持非常好，借鉴了Erlang的消息和通道模型
+
+7.函数可以有多个返回值
+
+
+**java**
+
+{% highlight java %}
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+public class Auth {
+ public static boolean isValidUser(String userName, String password) {
+  CloseableHttpClient client = HttpClients.createDefault();
+  CloseableHttpResponse response = null;
+  try {
+   HttpPost httpPost = new HttpPost("https://github.com/pm/login.shtml");
+   List<NameValuePair> params = new ArrayList<NameValuePair>();
+   params.add(new BasicNameValuePair("userName", userName));
+   params.add(new BasicNameValuePair("password", password));
+   httpPost.setEntity(new UrlEncodedFormEntity(params));
+   response = client.execute(httpPost);
+   String result = EntityUtils.toString(response.getEntity());
+   System.out.println(result);
+   JSONObject json = (JSONObject) JSON.parse(result);
+   if (json.get("code") != null && json.get("code").equals("e1000")) {
+    return true;
+   }
+  } catch (Exception e) {
+   e.printStackTrace();
+  } finally {
+   if (response != null) {
+    try {
+     response.close();
+    } catch (IOException e) {
+     e.printStackTrace();
+    }
+   }
+  }
+  return false;
+ }
+ public static void main(String[] args) {
+  System.out.println("auth result : " + isValidUser("it", "efun11"));
+  System.out.println("auth result : " + isValidUser("it", "efun"));
+ }
+}
+{% endhighlight %}
+
+1.代码比较冗长，但容易理解和维护。
+
+2.第三方组件和解决方案非常多，生态繁荣。
+
+

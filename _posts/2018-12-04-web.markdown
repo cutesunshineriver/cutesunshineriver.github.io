@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "前端技术变迁"
+date:   2018-12-04 12:37:24 +0800
+categories: programming
+---
+
+回顾近10年来，前端技术变化很大。
+
+最开始做web编程，用过struts1，用strtus的tiles插件来做页面布局，使用原生的js和css。
+
+后面开始用frameset来布局，恶心得一比。有美工开始协助出设计图，我们帮忙切图，出简单的css，但是不好看。中间尝试过GWT编程，上手难度有点大，有点非主流，后面逐步放弃。
+
+jquery慢慢成为主流，尝试了基于jquery的国产框架DWZ，整体效果可以接受。
+
+慢慢团队里有一些前端方面的技术人员开始基于jquery和jquery UI来封装自己的前端框架。
+
+后续接触过jquery easyui，用jquery实现ExtJS的功能，整体效果不错，上手比较容易。
+
+bootstrap流行起来以后，尝试了结合jquery和bootstrap的模板框架Metronic，省心省事。
+
+在前后端分离的趋势下，react、angularJS和国内的Vue逐步发展起来。Vue上手易，但整体框架搭建成型比较难，涉及到组合部件较多。基于Vue的ElementUI整体样式和效果上做得非常不错。
+
+基于nodeJS的大后端还在逐步的探索中，对于资深的前端开发来说好处甚多。
+
+不知道基于前端的变革，在nodeJS以后还有没有新的搅局者，期待前端有更好的发展。
